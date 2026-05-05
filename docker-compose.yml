@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  livepulse-connector-baidu-marketing:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: livepulse-connector-baidu-marketing
+    ports:
+      - "23015:23015"
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - NACOS_SERVER_ADDR=nacos-host:8848
+      - NACOS_NAMESPACE=
+      - NACOS_GROUP=cs
+    volumes:
+      - ./logs:/app/logs
+    restart: unless-stopped
+    networks:
+      - livepulse-network
+
+networks:
+  livepulse-network:
+    external: true

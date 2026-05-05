@@ -1,0 +1,134 @@
+server:
+  port: 23015
+
+spring:
+  application:
+    name: baidu-marketing-open-connector-server
+  config:
+    import:
+      - optional:nacos:${spring.application.name}-${spring.profiles.active}.${spring.cloud.nacos.config.file-extension}?group=cs
+      - optional:nacos:conn-client-base-${spring.profiles.active}.${spring.cloud.nacos.config.file-extension}?group=cs
+  cloud:
+    nacos:
+      discovery:
+        server-addr: ${NACOS_HOST:nacos.livepuls.com.cn}:${NACOS_PORT:8848}
+        namespace: ${NACOS_NAMESPACE:cs}
+        username: ${NACOS_USERNAME:nacos}
+        password: ${NACOS_PASSWORD:jdDDDnjjee&&LLM123V}
+        group: cs
+        enabled: true
+      config:
+        server-addr: ${NACOS_HOST:nacos.livepuls.com.cn}:${NACOS_PORT:8848}
+        namespace: ${NACOS_NAMESPACE:cs}
+        username: ${NACOS_USERNAME:nacos}
+        password: ${NACOS_PASSWORD:jdDDDnjjee&&LLM123V}
+        group: cs
+        file-extension: properties
+        extension-configs:
+
+  profiles:
+    active: ${PROFILES_ACTIVE:dev}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+    metrics:
+      enabled: true
+    prometheus:
+      enabled: true
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+    tags:
+      application: ${spring.application.name}
+  health:
+    redis:
+      enabled: false
+
+logging:
+  config: classpath:logback-custom.xml
+  level:
+    org:
+      springframework:
+        security: info
+    com:
+      cs:
+        mapper: debug
+
+
+# 百度营销连接器配置
+baidu:
+  marketing:
+    # API 配置
+    api:
+      # API 版本
+      version: 1.0
+      # 请求超时时间（秒）
+      timeout: 30
+      # 连接超时时间（秒）
+      connect-timeout: 10
+      # 连接池大小
+      max-connections: 20
+      # 每个路由的最大连接数
+      max-connections-per-route: 10
+
+    # 同步配置
+    sync:
+      # 批次大小
+      batch-size: 100
+      # 最大重试次数
+      max-retries: 3
+      # 重试延迟（毫秒）
+      retry-delay: 1000
+      # 并发线程数
+      thread-pool-size: 5
+
+    # 加密配置
+    encryption:
+      # 默认加密类型
+      default-type: MD5
+      # 是否自动加密
+      auto-encrypt: true
+      # 是否验证格式
+      validate-format: true
+
+    # 调度任务配置
+    scheduled:
+      # 是否启用调度任务
+      enabled: true
+
+      # 人群包同步配置
+      audience-sync:
+        enabled: true
+        # Cron表达式：每4小时执行一次
+        cron: "0 0 */4 * * ?"
+        # 初始延迟：60秒
+        initial-delay: 60
+        # 固定延迟：秒
+        fixed-delay: 14400
+
+      # 用户数据同步配置
+      user-data-sync:
+        enabled: true
+        # Cron表达式：每6小时执行一次
+        cron: "0 0 */6 * * ?"
+        # 初始延迟：120秒
+        initial-delay: 120
+        # 固定延迟：秒
+        fixed-delay: 21600
+
+    # Webhook 配置
+    webhook:
+      # 是否启用 Webhook
+      enabled: false
+      # Webhook 路径
+      path: /baidu-marketing/webhook
+      # 是否启用签名验证
+      verify-signature: true
+      # 签名密钥
+      signature-key: ${BAIDU_WEBHOOK_SIGNATURE_KEY:}
+      # 最大重试次数
+      max-retries: 3
